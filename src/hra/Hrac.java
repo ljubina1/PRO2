@@ -1,5 +1,6 @@
 package hra;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -57,6 +58,11 @@ public class Hrac {
 	}
 	public void paint(Graphics g){ //platno hraci plochy a hrace
 		g.drawImage(img, x, y, null);
+		
+		if(HraciPlocha.DEBUG){
+			g.setColor(Color.WHITE);
+			g.drawString("[x="+x+",y="+y+",rychlost="+rychlost+"]", x, y-5);
+		}
 	}
 	public int getVyskaHrace(){
 		return img.getHeight(); // vracet vysku obrazku, stejna vysoka jako vyska hrace

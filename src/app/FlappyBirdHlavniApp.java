@@ -20,7 +20,7 @@ public class FlappyBirdHlavniApp extends JFrame{
 		setSize(HraciPlocha.SIRKA,HraciPlocha.VYSKA);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("FlappyBird");
-		setLocation(null);
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 	public void spust(){
