@@ -14,6 +14,7 @@ public class ZdrojObrazkuSoubor extends ZdrojObrazku{
 	public void naplMapu() {
 		getMapa().put(Obrazek.POZADI.getKlic(), "pozadi.png");
 		getMapa().put(Obrazek.HRAC.getKlic(), "hrac.png");
+		getMapa().put(Obrazek.ZED.getKlic(), "zed.png");
 	}
 	@Override
 	public BufferedImage getObrazek() throws IOException {
