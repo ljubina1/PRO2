@@ -1,6 +1,7 @@
 package hra;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
@@ -10,6 +11,7 @@ public class Zed {
 	//rychlost pohybu zdi
 	public static final int RYCHLOST = -6;
 	public static final int MEZERA_MEZI_HORNI_A_DOLNI_CASTI_ZDI = 200;
+	public static final int BODY_ZA_ZED = 1;
 	private Random random;
 	//TODO
 	//ruzne zdi ruzne obrazky nelze pouzit static
@@ -41,7 +43,9 @@ public class Zed {
 		g.drawImage(img, x, y, null);
 		//horni cast zdi
 		g.drawImage(img, x, (- HraciPlocha.VYSKA) + (y - MEZERA_MEZI_HORNI_A_DOLNI_CASTI_ZDI),null);
+		// TODO testovani
 	}
+	
 	public void posunX(){
 		//POSUN ZDI
 		x = x + Zed.RYCHLOST;
@@ -68,6 +72,12 @@ public class Zed {
 	public static void setObrazek(BufferedImage img){
 		Zed.img = img;
 		
+	}
+	public Rectangle getMezSpodniZdi(){
+		return new Rectangle(x,y,SIRKA,vyska);
+	}
+	public Rectangle getMezHorniCastiZdi(){
+	 return new Rectangle(x, 0, SIRKA, HraciPlocha.VYSKA - (vyska + MEZERA_MEZI_HORNI_A_DOLNI_CASTI_ZDI));	
 	}
 //UKOL VYROBIT SI OBRAZEK ZDI, JAKO MAME PREDEPSANOU SIRKA 45 VYSKA 800
 }

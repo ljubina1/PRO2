@@ -1,6 +1,8 @@
 package hra;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,7 +10,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import obrazek.Obrazek;
@@ -30,7 +34,12 @@ public class HraciPlocha extends JPanel {
 	private Zed aktualniZed;
 	private Zed predchoziZed;
 	
-	//TODO
+	private int skore=0;//kolika zdmi hrac uspesne prosel
+	private JLabel lbSkore;
+	private JLabel lbZprava;
+	private Font font;
+	private Font fontZpravy;
+	
 	private Hrac hrac;
 	
 	private BufferedImage imgPozadi;
@@ -48,7 +57,7 @@ public class HraciPlocha extends JPanel {
 		try {
 			imgPozadi = z.getObrazek();
 		} catch (Exception e) {
-			// TODO: handle exception
+			
 			e.printStackTrace();
 		}
 		
@@ -73,7 +82,29 @@ public class HraciPlocha extends JPanel {
 			e.printStackTrace();
 		}
 		seznamZdi = new SeznamZdi();
+		 vyrobFontyALabely();
 	}
+	private void vyrobFontyALabely(){
+		font = new Font("Arial", Font.BOLD, 40);
+		fontZpravy = new Font("Arial", Font.BOLD, 20);
+		this.setLayout(new BorderLayout());
+		
+		lbZprava = new JLabel("");
+		lbZprava.setFont(fontZpravy);
+		lbZprava.setForeground(Color.GREEN);
+		lbZprava.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		lbSkore = new JLabel("0");
+		lbSkore.setFont(font);
+		lbSkore.setForeground(Color.BLUE);
+		lbSkore.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		this.add(lbSkore, BorderLayout.NORTH);
+		this.add(lbZprava, BorderLayout.CENTER);
+		
+	}
+	
+	
 	private void vyrobZdi(int pocet){
 		Zed zed;
 		int vzdalenost = HraciPlocha.SIRKA;
@@ -106,14 +137,38 @@ public class HraciPlocha extends JPanel {
 		//vykresleni hrace
 		hrac.paint(g);
 		
+		lbSkore.paint(g);
+		lbZprava.paint(g);
 	}
 	private void posun(){
 		if( ! pauza && hraBezi ){
+			//nastav zed, ktera je aktualni, nastav zed v poradi
+			aktualniZed = seznamZdi.getAktualniZed();
+			
+			//nastav(vrat referenci) predchozi zed
+			predchoziZed = seznamZdi.getPredchoziZed();
+			 
+			//detekce kolizi
+			if( isKolizeSeZdi(predchoziZed,hrac) || isKolizeSeZdi(aktualniZed, hrac) || isKolizeSHraniciHraciPlochy(hrac)){
+				ukonciAvyresetujHruPoNarazu();
+			}else{
+			
 			for (Zed zed : seznamZdi) {
 				zed.posunX();
 			}
 			
 			hrac.posun();
+			//hrac prosel zdi bez narazu
+			//zjistit kde se nachazi, bud pred aktualni zdi-nedelej nic
+			//anebo za aktualni zdi - posun dalsi zed v poradi a prepocitej skore
+			
+			if(hrac.getX() >= aktualniZed.getX()){
+				seznamZdi.nastavDalsiZedNaAktualni();
+				zvedniSkoreZed();
+				lbSkore.setText(skore + "");
+				
+			}
+			}
 			
 			//posun pozice pozadi hraci plochy (sklonovani)
 			posunPozadiX = posunPozadiX + HraciPlocha.RYCHLOST;
@@ -123,6 +178,23 @@ public class HraciPlocha extends JPanel {
 			}
 		}
 	}
+	private void ukonciAvyresetujHruPoNarazu() {
+		hraBezi = false;
+		casovacAnimace.stop();
+		casovacAnimace = null;
+		vyresetujHru();
+		nastavZpravuNarazDoZdi();
+		
+	}
+	private boolean isKolizeSeZdi(Zed zed, Hrac hrac){
+		
+		return (zed.getMezSpodniZdi().intersects(hrac.getMez())) || (zed.getMezHorniCastiZdi().intersects(hrac.getMez()));
+		
+	}
+	private boolean isKolizeSHraniciHraciPlochy(Hrac hrac){
+		return (hrac.getY()<= 0) || (hrac.getY() >= HraciPlocha.VYSKA - hrac.getVyskaHrace() - 40);
+	}
+	
 	private void spustHru(){
 		casovacAnimace = new Timer(20, new ActionListener() {
 			
@@ -132,10 +204,12 @@ public class HraciPlocha extends JPanel {
 				posun();
 			}
 		});
+		nastavZpravuPrazdna();
 		hraBezi = true;
 		casovacAnimace.start();
 	}
 	public void pripravHraciPlochu(){
+		nastavZpravuOvladani();
 		
 		this.addMouseListener(new MouseAdapter() {
 			@Override
@@ -148,8 +222,10 @@ public class HraciPlocha extends JPanel {
 				if(e.getButton() == MouseEvent.BUTTON3){
 				if(hraBezi){
 					if(pauza){
+						nastavZpravuPrazdna();
 						pauza = false;
 					}else{
+						nastavZpravuPauza();
 						pauza = true;
 					}
 				}else{
@@ -165,10 +241,56 @@ public class HraciPlocha extends JPanel {
 	}
 
 	protected void pripravNovouHru() {
-		//TODO
+		vyresetujHru();
+		
+	}
+	private void vyresetujHru(){
+		resetujVsechnyZdi();
+		hrac.reset();
+		//nejprve zobraz stare skore,aby hrac videl kolik bodu nasbiral
+		lbSkore.setText(skore + "");
+		//ale skore pak vynuluj
+		
+		vynulujSkore();
+	}
+	private void vynulujSkore() {
+		skore = 0;
+		
+	}
+	private void zvedniSkoreZed(){
+		skore = skore + Zed.BODY_ZA_ZED;
+	}
+	
+	private void resetujVsechnyZdi() {
+		seznamZdi.clear();
 		vyrobZdi(POCET_ZDI);
 		
 	}
-	
+	public void reset(){
+		vygenerujNahodneHodnotyProZed();
+	}
+	private void vygenerujNahodneHodnotyProZed() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void nastavZpravuNarazDoZdi(){
+		lbZprava.setFont(font);
+		lbZprava.setText("narazil jsi AU, zkus to znovu");
+	}
+	private void nastavZpravuPauza(){
+		lbZprava.setFont(font);
+		lbZprava.setText("pauza");
+		
+	}
+	private void nastavZpravuOvladani(){
+		lbZprava.setFont(fontZpravy);
+		lbZprava.setText("pravy klik = start/stop, levy klik = skok");
+		
+	}
+	private void nastavZpravuPrazdna(){
+		lbZprava.setFont(font);
+		lbZprava.setText("");
+	}
 	
 }
