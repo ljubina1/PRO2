@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import obrazek.ManazerObrazku;
 import obrazek.Obrazek;
 import obrazek.ZdrojObrazkuSoubor;
 
@@ -48,9 +49,13 @@ public class HraciPlocha extends JPanel {
 	private boolean hraBezi = false;
 	private int posunPozadiX = 0;
 	
-	public HraciPlocha(){
-		//TODO
-		//správa obrázkù
+	public HraciPlocha( ManazerObrazku mo ){
+		imgPozadi = mo.getObrazek(Obrazek.POZADI);
+		//tímto nahrazen kod dole (1)
+		hrac = new Hrac(mo.getObrazek(Obrazek.HRAC));
+		//(2)
+		Zed.setObrazek(mo.getObrazek(Obrazek.ZED));
+		/*//správa obrázkù (1)
 		ZdrojObrazkuSoubor z = new ZdrojObrazkuSoubor();
 		z.naplMapu();
 		z.setZdroj(Obrazek.POZADI.getKlic());
@@ -60,8 +65,8 @@ public class HraciPlocha extends JPanel {
 			
 			e.printStackTrace();
 		}
-		
-		z.setZdroj(Obrazek.HRAC.getKlic());
+		*/
+		/*(2)z.setZdroj(Obrazek.HRAC.getKlic());
 		BufferedImage imgHrac;
 		//hrac = new Hrac(null);
 		try {
@@ -80,7 +85,7 @@ public class HraciPlocha extends JPanel {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}
+		}*/
 		seznamZdi = new SeznamZdi();
 		 vyrobFontyALabely();
 	}
