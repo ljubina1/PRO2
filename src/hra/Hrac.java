@@ -21,6 +21,7 @@ public class Hrac {
 	//pocatecni y-ova pozice hrace,meni se(skace nahoru a dolu)
 	private int y;
 	private int rychlost;
+	private int c = 1;
 	//pomoci toho koeficienty vypocitame
 	
 	public Hrac(BufferedImage img) {
@@ -57,8 +58,14 @@ public class Hrac {
 		
 	}
 	public void paint(Graphics g){ //platno hraci plochy a hrace
-		g.drawImage(img, x, y, null);
-		
+		//g.drawImage(img, x, y, null);
+		if(c>=255){
+			c=10;
+		}else{
+			c=c+10;
+		}
+		g.setColor(new Color(c,c,c));
+		g.fillRect(x, y, Hrac.SIRKA, Hrac.VYSKA);
 		if(HraciPlocha.DEBUG){
 			g.setColor(Color.WHITE);
 			g.drawString("[x="+x+",y="+y+",rychlost="+rychlost+"]", x, y-5);
@@ -74,3 +81,4 @@ public class Hrac {
 	}
 	
 }
+//vyrobit jednoduchou tridu o/1 prepinani mo v flappybirth

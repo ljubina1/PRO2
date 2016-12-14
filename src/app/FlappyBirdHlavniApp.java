@@ -15,15 +15,23 @@ import hra.HraciPlocha;
 import obrazek.ManazerObrazku;
 import obrazek.ZdrojObrazku;
 import obrazek.ZdrojObrazkuSoubor;
+import obrazek.ZdrojObrazkuURL;
 
 public class FlappyBirdHlavniApp extends JFrame{
 	
 	private ManazerObrazku mo;
 	
 	public FlappyBirdHlavniApp(){
-		mo = new ManazerObrazku(new ZdrojObrazkuSoubor());
+		
+		/*String s ="1";
+		if(s.equals("1")){//is ctiobrazek
 			
-				
+		}else{
+			
+		}*/
+		//mo = new ManazerObrazku(new ZdrojObrazkuSoubor());
+			
+		mo = new ManazerObrazku(new ZdrojObrazkuURL());		
 		}
 	public void initGUI(){
 		setSize(HraciPlocha.SIRKA,HraciPlocha.VYSKA);
@@ -101,6 +109,7 @@ public class FlappyBirdHlavniApp extends JFrame{
 	}
 
 }
+//bonus 40x40 + url
 //DU
 //textovy soubor 
 //hrac;http://...
